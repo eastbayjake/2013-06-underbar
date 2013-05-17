@@ -10,7 +10,7 @@ var _ = {};
     } else if (n > array.length) {
       return array;
     } else {
-      return array.slice((array.length - n), array.length);
+      return Array.prototype.slice.call(array, array.length - n, array.length);
     }
   };
 
@@ -23,6 +23,13 @@ var _ = {};
 
   // Call iterator(value, key, collection) for each element of collection
   _.each = function(obj, iterator) {
+    if (Array.isArray(obj) === true) {
+      for (i=0; i<obj.length; i++) {
+        return iterator(obj[i]);
+      }
+    } else {
+      return undefined;
+    }
   };
 
   /*
