@@ -5,7 +5,7 @@ var _ = {};
   // Return an array of the last n elements of an array. If n is undefined,
   // return just the last element.
   _.last = function(array, n) {
-  if (n === undefined) {
+    if (n === undefined) {
       return array[array.length - 1];
     } else if (n > array.length) {
       return array;
@@ -14,21 +14,34 @@ var _ = {};
     }
   };
 
-  // Like last, but for the first elements
   _.first = function(array, n) {
-    // TIP: you can often re-use similar functions in clever ways, like so:
-    return _.last(array.reverse(), n);
+    if (n === undefined) {
+      return array[0];
+    } else if (n === 0) {
+      return [];
+    } else if (n >= array.length) {
+      return array;
+    } else {
+      return Array.prototype.slice.call(array, 0, array.length - 1);
+    }
   };
-
 
   // Call iterator(value, key, collection) for each element of collection
   _.each = function(obj, iterator) {
-    if (Array.isArray(obj) === true) {
-      for (i=0; i<obj.length; i++) {
-        return iterator(obj[i]);
+    var i, key;
+    var length = obj.length;
+    var results = [];
+    if (Array.isArray(obj)) {
+      for (i=0; i<length; i++) {
+        results.push(iterator(obj[i], i, obj));
       }
+      return results;
     } else {
-      return undefined;
+      for (key in obj) {
+        if (!hasOwnProperty.call(obj, key)) continue;
+        results.push(iterator(obj[key], key, obj));
+      }
+      return results;
     }
   };
 
@@ -45,7 +58,7 @@ var _ = {};
 
     _.each(array, function(item, index) {
       if (item === target && result === -1) {
-        result = index;
+        result = parseInt(index);
       }
     });
 
@@ -54,16 +67,41 @@ var _ = {};
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, iterator) {
+    var i;
+    var length = collection.length;
+    var pass = [];
+    for (i=0; i<length; i++) {
+      if (iterator(collection[i]) === true) {
+        pass.push(collection[i]);
+      }
+    }
+    return pass;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, iterator) {
-    // TIP: see if you can re-use _.select() here, without simply
-    // copying code in and modifying it
+    var i;
+    var length = collection.length;
+    var pass = [];
+    for (i=0; i<length; i++) {
+      if (iterator(collection[i]) === false) {
+        pass.push(collection[i]);
+      }
+    }
+    return pass;
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+    var i;
+    var length = array.length;
+    var results = [];
+    for (i=0; i<length; i++) {
+      if (results.indexOf(array[i]) == -1) {
+        results.push(array[i]);
+      }
+    }
+    return results;
   };
 
 
@@ -75,6 +113,13 @@ var _ = {};
 
   // Return the results of applying an iterator to each element.
   _.map = function(array, iterator) {
+    var i;
+    var length = array.length;
+    var results = [];
+    for (i=0; i<length; i++) {
+      results[results.length] = iterator(array[i])
+    }
+    return results;
   };
 
   /*
@@ -94,6 +139,10 @@ var _ = {};
 
   // Calls the method named by methodName on each value in the list.
   _.invoke = function(list, methodName) {
+    for (var i=0; i<list.length; i++) {
+      list[i] = methodName.call(list[i]);
+    }
+    return list;
   };
 
   // Reduces an array or object to a single value by repetitively calling
@@ -110,6 +159,13 @@ var _ = {};
   //   }, 0); // should be 6
   //
   _.reduce = function(obj, iterator, initialValue) {
+    if (initialValue == null) {
+      initialValue = 0;
+    }
+    _.each(obj, function(value) {
+      return initialValue = iterator(initialValue, value);
+    });
+    return initialValue;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -127,15 +183,46 @@ var _ = {};
 
   // Determine whether all of the elements match a truth test.
   _.every = function(obj, iterator) {
-    // TIP: use reduce on this one!
+    var i, flag;
+    var length = obj.length;
+    if (length === 0) {
+      return true;
+    }
+    for (i=0; i<length; i++) {
+      if (iterator(obj[i]) == true) {
+        flag = true;
+      } else {
+        return false;
+      }
+    }
+    return flag;
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.any = function(obj, iterator) {
-    // TIP: re-use every() here
+    var i, flag;
+    var length = obj.length;
+    if (length === 0) {
+      return false;
+    }
+    for (i=0; i<length; i++) {
+      if (iterator == null) {
+        if (obj[i]) {
+          return true;
+        } else {
+          flag = false;
+        }
+      } else {
+        if (iterator(obj[i])) {
+          return true;
+        } else {
+          flag = false;
+        }
+      }
+    }
+    return flag;
   };
-
 
   /*
    * These are a couple of helpers for merging objects
@@ -154,11 +241,31 @@ var _ = {};
   //   }); // obj1 now contains key1, key2, key3 and bla
   //
   _.extend = function(obj) {
+    var props, key, i;
+    var length = arguments.length;
+    for (i = 0; i<length; i++) {
+      props = arguments[i];
+      for (key in props) {
+        obj[key] = props[key];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var props, key, i;
+    var length = arguments.length;
+    for (i = 0; i<length; i++) {
+      props = arguments[i];
+      for (key in props) {
+        if (obj[key] == null) {
+        obj[key] = props[key];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -196,6 +303,14 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var memo = [];
+    return function(x) {
+      if (memo.hasOwnProperty(x)) {
+        return memo[x];
+      } else {
+        return memo[x] = func(x);
+      }
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -205,6 +320,8 @@ var _ = {};
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var parameters = Array.prototype.slice.call(arguments, 2);
+    return setTimeout(function(){ return func.apply(null, parameters); }, wait);
   };
 
 
@@ -214,6 +331,18 @@ var _ = {};
 
   // Shuffle an array.
   _.shuffle = function(obj) {
+    var i;
+    var length = obj.length;
+    var shuffledArray = [];
+    for (i=0; i<length; i++) {
+      var flipper = Math.floor(Math.random() * 2)
+      if (flipper = 0) {
+        shuffledArray.push(obj[i]);
+      } else {
+        shuffledArray.unshift(obj[i]);
+      }
+    }
+    return shuffledArray;
   };
 
   /* (End of pre-course curriculum) */

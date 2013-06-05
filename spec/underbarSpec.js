@@ -24,7 +24,6 @@ describe("last", function() {
 
 });
 
-/*
 
 describe("first", function() {
   it("should be able to pull out the first element of an array", function() {
@@ -201,6 +200,7 @@ describe("reduce", function() {
   });
 
 });
+
 
 describe("contains", function() {
   it("should return true if a collection contains a user-specified value", function() {
@@ -431,6 +431,8 @@ describe("shuffle", function() {
     expect(shuffled.sort()).to.eql(numbers);
   });
 });
+
+/*
 
 describe("sortBy", function() {
   it("should sort by age", function() {
